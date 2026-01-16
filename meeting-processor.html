@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Granola → Monday.com | Meeting Action Items</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #e4e4e7;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #00d9ff, #00ff88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        header p {
+            color: #a1a1aa;
+            font-size: 14px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .card h2 {
+            font-size: 18px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .step-number {
+            background: linear-gradient(135deg, #00d9ff, #00ff88);
+            color: #1a1a2e;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #a1a1aa;
+            font-size: 14px;
+        }
+
+        input[type="text"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            color: #e4e4e7;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+
+        input:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: #00d9ff;
+        }
+
+        textarea {
+            min-height: 200px;
+            resize: vertical;
+        }
+
+        textarea::placeholder {
+            color: #6b7280;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00d9ff, #00ff88);
+            color: #1a1a2e;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0, 217, 255, 0.3);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #e4e4e7;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        /* Results */
+        #resultsSection {
+            display: none;
+        }
+
+        .summary-box {
+            background: rgba(0, 217, 255, 0.1);
+            border: 1px solid rgba(0, 217, 255, 0.3);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .summary-box h3 {
+            font-size: 14px;
+            color: #00d9ff;
+            margin-bottom: 8px;
+        }
+
+        .summary-box p {
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .action-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+            transition: border-color 0.2s;
+        }
+
+        .action-item:hover {
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .action-item.selected {
+            border-color: #00ff88;
+            background: rgba(0, 255, 136, 0.05);
+        }
+
+        .action-item-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .action-item-checkbox {
+            margin-top: 4px;
+        }
+
+        .action-item-checkbox input {
+            width: 18px;
+            height: 18px;
+            accent-color: #00ff88;
+        }
+
+        .action-item-content {
+            flex: 1;
+        }
+
+        .action-item-title {
+            font-weight: 600;
+            margin-bottom: 6px;
+            font-size: 15px;
+        }
+
+        .action-item-description {
+            color: #a1a1aa;
+            font-size: 13px;
+            line-height: 1.5;
+            margin-bottom: 10px;
+        }
+
+        .action-item-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            font-size: 12px;
+        }
+
+        .meta-tag {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            color: #a1a1aa;
+        }
+
+        .meta-tag.priority-high {
+            color: #f87171;
+        }
+
+        .meta-tag.priority-medium {
+            color: #fbbf24;
+        }
+
+        .meta-tag.priority-low {
+            color: #34d399;
+        }
+
+        /* Board Selection */
+        .board-selection {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .board-selection {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Status Messages */
+        .status {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 14px;
+        }
+
+        .status.loading {
+            background: rgba(0, 217, 255, 0.1);
+            border: 1px solid rgba(0, 217, 255, 0.3);
+            color: #00d9ff;
+        }
+
+        .status.success {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            color: #00ff88;
+        }
+
+        .status.error {
+            background: rgba(248, 113, 113, 0.1);
+            border: 1px solid rgba(248, 113, 113, 0.3);
+            color: #f87171;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Created Items */
+        .created-item {
+            background: rgba(0, 255, 136, 0.05);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .created-item-name {
+            font-weight: 500;
+        }
+
+        .created-item-id {
+            color: #6b7280;
+            font-size: 12px;
+        }
+
+        /* Spinner */
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid transparent;
+            border-top-color: currentColor;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Select All */
+        .select-all-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .item-count {
+            color: #a1a1aa;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Granola → Monday.com</h1>
+            <p>Extract action items from meeting notes and create tasks automatically</p>
+        </header>
+
+        <!-- Step 1: Input Meeting Notes -->
+        <div class="card" id="inputSection">
+            <h2><span class="step-number">1</span> Paste Meeting Notes</h2>
+
+            <div class="form-group">
+                <label for="meetingTitle">Meeting Title (optional)</label>
+                <input type="text" id="meetingTitle" placeholder="e.g., Weekly Product Sync - Jan 15">
+            </div>
+
+            <div class="form-group">
+                <label for="meetingNotes">Meeting Notes from Granola</label>
+                <textarea id="meetingNotes" placeholder="Paste your meeting notes here...
+
+Example:
+We kicked off discussing the Q1 roadmap. Sarah mentioned that the customer feedback analysis is overdue - she'll have it ready by end of week.
+
+Mike raised concerns about the API performance. He's going to run load tests this week.
+
+For the mobile app launch:
+- Lisa to finalize the app store screenshots by Jan 20
+- Tom will coordinate with marketing on the press release"></textarea>
+            </div>
+
+            <div id="extractStatus" class="status hidden"></div>
+
+            <div class="button-group">
+                <button class="btn-primary" id="extractBtn" onclick="extractActionItems()">
+                    Extract Action Items
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 2: Review & Select -->
+        <div class="card hidden" id="resultsSection">
+            <h2><span class="step-number">2</span> Review Action Items</h2>
+
+            <div class="summary-box" id="meetingSummary">
+                <h3>Meeting Summary</h3>
+                <p id="summaryText"></p>
+            </div>
+
+            <div class="select-all-row">
+                <input type="checkbox" id="selectAll" checked onchange="toggleSelectAll()">
+                <label for="selectAll" style="margin-bottom: 0; color: #e4e4e7;">Select All</label>
+                <span class="item-count" id="itemCount"></span>
+            </div>
+
+            <div id="actionItemsList"></div>
+
+            <h3 style="margin-top: 24px; margin-bottom: 16px; font-size: 16px;">
+                <span class="step-number" style="width: 24px; height: 24px; font-size: 12px;">3</span>
+                Select Destination
+            </h3>
+
+            <div class="board-selection">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="boardSelect">Monday.com Board</label>
+                    <select id="boardSelect" onchange="loadGroups()">
+                        <option value="">Loading boards...</option>
+                    </select>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="groupSelect">Group</label>
+                    <select id="groupSelect">
+                        <option value="">Select a board first</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="createStatus" class="status hidden"></div>
+
+            <div class="button-group">
+                <button class="btn-secondary" onclick="resetForm()">Start Over</button>
+                <button class="btn-primary" id="createBtn" onclick="createTasks()">
+                    Create Tasks in Monday.com
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 3: Success -->
+        <div class="card hidden" id="successSection">
+            <h2><span class="step-number">✓</span> Tasks Created Successfully</h2>
+
+            <div id="createdItemsList"></div>
+
+            <div class="button-group">
+                <button class="btn-primary" onclick="resetForm()">Process Another Meeting</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let extractedItems = [];
+        let boards = [];
+
+        // Load boards on page load
+        document.addEventListener('DOMContentLoaded', loadBoards);
+
+        async function loadBoards() {
+            try {
+                const response = await fetch('/api/boards');
+                const data = await response.json();
+
+                if (data.success) {
+                    boards = data.boards;
+                    const select = document.getElementById('boardSelect');
+                    select.innerHTML = '<option value="">Select a board...</option>';
+
+                    boards.forEach(board => {
+                        const option = document.createElement('option');
+                        option.value = board.id;
+                        option.textContent = board.name;
+                        select.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Failed to load boards:', error);
+                const select = document.getElementById('boardSelect');
+                select.innerHTML = '<option value="">Failed to load boards</option>';
+            }
+        }
+
+        function loadGroups() {
+            const boardId = document.getElementById('boardSelect').value;
+            const groupSelect = document.getElementById('groupSelect');
+
+            if (!boardId) {
+                groupSelect.innerHTML = '<option value="">Select a board first</option>';
+                return;
+            }
+
+            const board = boards.find(b => b.id === boardId);
+            if (!board) return;
+
+            groupSelect.innerHTML = '';
+            board.groups.forEach(group => {
+                const option = document.createElement('option');
+                option.value = group.id;
+                option.textContent = group.title;
+                groupSelect.appendChild(option);
+            });
+        }
+
+        async function extractActionItems() {
+            const meetingNotes = document.getElementById('meetingNotes').value;
+            const meetingTitle = document.getElementById('meetingTitle').value;
+            const statusEl = document.getElementById('extractStatus');
+            const btn = document.getElementById('extractBtn');
+
+            if (meetingNotes.trim().length < 50) {
+                showStatus(statusEl, 'error', 'Please enter at least 50 characters of meeting notes');
+                return;
+            }
+
+            showStatus(statusEl, 'loading', '<span class="spinner"></span>Extracting action items with Claude...');
+            btn.disabled = true;
+
+            try {
+                const response = await fetch('/api/extract', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ meetingNotes, meetingTitle })
+                });
+
+                const data = await response.json();
+
+                if (!data.success) {
+                    throw new Error(data.error);
+                }
+
+                if (!data.action_items || data.action_items.length === 0) {
+                    showStatus(statusEl, 'error', 'No action items found in the meeting notes. Try adding more specific tasks.');
+                    btn.disabled = false;
+                    return;
+                }
+
+                extractedItems = data.action_items;
+                showResults(data);
+            } catch (error) {
+                showStatus(statusEl, 'error', `Error: ${error.message}`);
+            }
+
+            btn.disabled = false;
+        }
+
+        function showResults(data) {
+            document.getElementById('summaryText').textContent = data.meeting_summary || 'Meeting processed';
+            document.getElementById('itemCount').textContent = `(${data.action_items.length} items)`;
+
+            const listEl = document.getElementById('actionItemsList');
+            listEl.innerHTML = '';
+
+            data.action_items.forEach((item, index) => {
+                const itemEl = document.createElement('div');
+                itemEl.className = 'action-item selected';
+                itemEl.dataset.index = index;
+
+                const priorityClass = `priority-${item.priority || 'medium'}`;
+
+                itemEl.innerHTML = `
+                    <div class="action-item-header">
+                        <div class="action-item-checkbox">
+                            <input type="checkbox" checked onchange="toggleItem(${index})">
+                        </div>
+                        <div class="action-item-content">
+                            <div class="action-item-title">${escapeHtml(item.task_title)}</div>
+                            <div class="action-item-description">${escapeHtml(item.description || '')}</div>
+                            <div class="action-item-meta">
+                                ${item.assignee ? `<span class="meta-tag">👤 ${escapeHtml(item.assignee)}</span>` : ''}
+                                ${item.deadline ? `<span class="meta-tag">📅 ${escapeHtml(item.deadline)}</span>` : ''}
+                                <span class="meta-tag ${priorityClass}">⚡ ${item.priority || 'medium'}</span>
+                                ${item.project_context ? `<span class="meta-tag">📁 ${escapeHtml(item.project_context)}</span>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                listEl.appendChild(itemEl);
+            });
+
+            document.getElementById('extractStatus').classList.add('hidden');
+            document.getElementById('resultsSection').classList.remove('hidden');
+        }
+
+        function toggleItem(index) {
+            const itemEl = document.querySelector(`.action-item[data-index="${index}"]`);
+            itemEl.classList.toggle('selected');
+            updateSelectAllState();
+        }
+
+        function toggleSelectAll() {
+            const isChecked = document.getElementById('selectAll').checked;
+            document.querySelectorAll('.action-item').forEach(item => {
+                const checkbox = item.querySelector('input[type="checkbox"]');
+                checkbox.checked = isChecked;
+                item.classList.toggle('selected', isChecked);
+            });
+        }
+
+        function updateSelectAllState() {
+            const all = document.querySelectorAll('.action-item').length;
+            const selected = document.querySelectorAll('.action-item.selected').length;
+            document.getElementById('selectAll').checked = all === selected;
+        }
+
+        async function createTasks() {
+            const boardId = document.getElementById('boardSelect').value;
+            const groupId = document.getElementById('groupSelect').value;
+            const meetingTitle = document.getElementById('meetingTitle').value;
+            const statusEl = document.getElementById('createStatus');
+            const btn = document.getElementById('createBtn');
+
+            if (!boardId) {
+                showStatus(statusEl, 'error', 'Please select a Monday.com board');
+                return;
+            }
+
+            // Get selected items
+            const selectedIndices = Array.from(document.querySelectorAll('.action-item.selected'))
+                .map(el => parseInt(el.dataset.index));
+
+            if (selectedIndices.length === 0) {
+                showStatus(statusEl, 'error', 'Please select at least one action item');
+                return;
+            }
+
+            const selectedItems = selectedIndices.map(i => extractedItems[i]);
+
+            showStatus(statusEl, 'loading', `<span class="spinner"></span>Creating ${selectedItems.length} tasks in Monday.com...`);
+            btn.disabled = true;
+
+            try {
+                const response = await fetch('/api/create-tasks', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        actionItems: selectedItems,
+                        boardId,
+                        groupId,
+                        meetingTitle
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!data.success) {
+                    throw new Error(data.error);
+                }
+
+                showSuccess(data);
+            } catch (error) {
+                showStatus(statusEl, 'error', `Error: ${error.message}`);
+                btn.disabled = false;
+            }
+        }
+
+        function showSuccess(data) {
+            document.getElementById('resultsSection').classList.add('hidden');
+
+            const listEl = document.getElementById('createdItemsList');
+            listEl.innerHTML = `
+                <div class="summary-box" style="background: rgba(0, 255, 136, 0.1); border-color: rgba(0, 255, 136, 0.3);">
+                    <h3 style="color: #00ff88;">Results</h3>
+                    <p>Created ${data.created} tasks in "${data.board?.name || 'board'}"</p>
+                    ${data.failed > 0 ? `<p style="color: #fbbf24;">⚠️ ${data.failed} items failed to create</p>` : ''}
+                </div>
+            `;
+
+            data.results.forEach(result => {
+                if (result.success) {
+                    const itemEl = document.createElement('div');
+                    itemEl.className = 'created-item';
+                    itemEl.innerHTML = `
+                        <span class="created-item-name">✓ ${escapeHtml(result.item.name)}</span>
+                        <span class="created-item-id">ID: ${result.item.id}</span>
+                    `;
+                    listEl.appendChild(itemEl);
+                }
+            });
+
+            document.getElementById('successSection').classList.remove('hidden');
+        }
+
+        function resetForm() {
+            extractedItems = [];
+            document.getElementById('meetingNotes').value = '';
+            document.getElementById('meetingTitle').value = '';
+            document.getElementById('extractStatus').classList.add('hidden');
+            document.getElementById('resultsSection').classList.add('hidden');
+            document.getElementById('successSection').classList.add('hidden');
+            document.getElementById('createStatus').classList.add('hidden');
+            document.getElementById('inputSection').classList.remove('hidden');
+            document.getElementById('extractBtn').disabled = false;
+            document.getElementById('createBtn').disabled = false;
+        }
+
+        function showStatus(el, type, message) {
+            el.className = `status ${type}`;
+            el.innerHTML = message;
+            el.classList.remove('hidden');
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>
